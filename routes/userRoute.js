@@ -1,6 +1,7 @@
 const express = require("express");
 const router =express.Router();
 
+<<<<<<< HEAD
 const users = require('../controllers/user');
 // const user = require('../controllers/userController');
 const employee= require('../controllers/employee');
@@ -26,5 +27,14 @@ router.get("/getDealer",dealer.getDealer);
 router.get("/getTransport",transport.getTransport);
 
 router.get("/getCustomer",customer.getCustomer);
+=======
+const user = require('../controllers/userController');
+
+router.post("/add_user",user.addUser);
+router.post("/login",user.loginUser);
+router.get("/getAllUsers",user.getAll);
+router.delete("/deleteUsers/:id",user.deleteUser);
+router.put("/editUser/:id",user.editUser)
+>>>>>>> 029e413cc623ca2f0592656d458f460e061c5e51
 
 module.exports = router

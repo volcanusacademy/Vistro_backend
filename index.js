@@ -11,6 +11,10 @@ app.use(cors({
     credentials: true
 })
 );
+<<<<<<< HEAD
+=======
+
+>>>>>>> 029e413cc623ca2f0592656d458f460e061c5e51
 const userRouter = require('./routes/userRoute');
 app.use(userRouter)
 
