@@ -12,6 +12,16 @@ const lablemaster = require('../controllers/label_barcode')
 const masterSetting = require('../controllers/masterSetting');
 const sti = require('../controllers/sti');
 const fillCombo = require('../controllers/fillCombo');
+const addProductData= require('../controllers/addProductData');
+
+
+
+router.post("/addProducts",addProductData.addProducts)
+router.get('/getCodeTypeData', addProductData.getCodeTypeData);
+router.put('/editProducts/:primekeyid', addProductData.editProduct);
+router.delete('/deleteProducts/:primekeyid', addProductData.deleteProduct);
+router.get('/getCompanyId', addProductData.getCompanyId);
+
 
 router.post("/add_user",users.addUser);
 router.post("/login",users.loginUser);

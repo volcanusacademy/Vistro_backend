@@ -3,8 +3,8 @@ const con = require('../config')
 
 exports.addUser = async (req, res) => {
 
-    const { id, name, email, password } = req.body;
-    const newUser = { id, name, email, password }
+    const { id, name, email, password, companyid } = req.body;
+    const newUser = { id, name, email, password, companyid }
    await con.query('INSERT INTO users SET ?', newUser, (error, result, fields) => {
         if (error) console.log(error);
         res.status(201).send({

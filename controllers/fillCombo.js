@@ -47,12 +47,66 @@ const con = require('../config')
          res.json(result);
      });
  };
- exports.postcmbAW = async (req, res) => {
-    const {TblName,FldName,FldCode,OrdBy,WhFldName,} = req.body
-    await con.query(`SELECT ${FldName}, ${FldCode} FROM ${TblName} WHERE Codetype = '${WhFldName}' Order by '${OrdBy}', '${FldName}'`, (err, result) => {
-         if (err) {
-             throw err;
-         }                                              
-         res.json(result);
-     });
- };
+//  exports.postcmbAW = async (req, res) => {
+//     const {TblName,FldName,FldCode,OrdBy,WhFldName,} = req.body
+//     console.log(req.body)
+//     await con.query(`SELECT ${FldName}, ${FldCode} FROM ${TblName} WHERE Codetype = '${WhFldName}' Order by '${OrdBy}', '${FldName}'`, (err, result) => {
+//          if (err) {
+//              throw err;
+//          }                                              
+//          res.json(result);
+//      });
+//  };
+
+// exports.postcmbAW = async (req, res) => {
+//     const {TblName, FldName, FldCode, OrdBy, WhFldName} = req.body;
+//     console.log(req.body);
+
+//     if (!Array.isArray(WhFldName)) {
+//         return res.status(400).json({ error: "WhFldName must be an array" });
+//     }
+
+//     try {
+//         const results = {};
+        
+//         for (const field of WhFldName) {
+//             const query = `SELECT ${FldName}, ${FldCode} FROM ${TblName} WHERE Codetype = '${field}' ORDER BY ${OrdBy}, ${FldName}`;
+//             const [rows] = await con.promise().query(query);
+//             results[field] = rows;
+//         }
+        
+//         res.json(results);
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).json({ error: "Database query failed" });
+//     }
+// };
+exports.postcmbAW = (req, res) => {
+    const { TblName, FldName, FldCode, OrdBy, WhFldName } = req.body;
+    console.log(req.body);
+
+    if (!Array.isArray(WhFldName)) {
+        return res.status(400).json({ error: "WhFldName must be an array" });
+    }
+
+    const results = {};
+    const queries = WhFldName.map(field => {
+        return new Promise((resolve, reject) => {
+            const query = `SELECT ${FldName}, ${FldCode} FROM ${TblName} WHERE Codetype = '${field}' ORDER BY ${OrdBy}, ${FldName}`;
+            con.query(query, (err, rows) => {
+                if (err) {
+                    return reject(err);
+                }
+                results[field] = rows;
+                resolve();
+            });
+        });
+    });
+
+    Promise.all(queries)
+        .then(() => res.json(results))
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: "Database query failed" });
+        });
+};
