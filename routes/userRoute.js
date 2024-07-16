@@ -18,9 +18,11 @@ const addProductData= require('../controllers/addProductData');
 
 router.post("/addProducts",addProductData.addProducts)
 router.get('/getCodeTypeData', addProductData.getCodeTypeData);
+router.get('/getCodeTypeAllData', addProductData.getCodeTypeAllData);
 router.put('/editProducts/:primekeyid', addProductData.editProduct);
 router.delete('/deleteProducts/:primekeyid', addProductData.deleteProduct);
 router.get('/getCompanyId', addProductData.getCompanyId);
+router.get('/getNextSequence', addProductData.getNextSequence);
 
 
 router.post("/add_user",users.addUser);
@@ -30,6 +32,7 @@ router.delete("/deleteUsers/:id",users.deleteUser);
 router.put("/editUser/:id",users.editUser);
 
 router.get("/getMasterSet",masterSetting.getMasterSetting);
+router.get("/getCodetype",masterSetting.getAllMasterSettings)
 
 // router.get("/getcmb/:id",fillCombo.getcmb);
 router.post("/postcmb",fillCombo.postcmb);

@@ -5,7 +5,7 @@ exports.addProducts = (req, res) => {
     const { codetype, createdby, primename, status, sequence, remark, companyid } = req.body;
 
     // Validate input (optional)
-    if (!codetype || !createdby || !primename || !status || !sequence || !remark || !companyid) {
+    if (!codetype || !createdby || !primename || !sequence || !status || !companyid) {
         return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -17,7 +17,7 @@ exports.addProducts = (req, res) => {
             console.error('Error fetching max primekeyid:', err);
             return res.status(500).json({ message: 'Error fetching data' });
         }
-        
+      
         // Calculate the new primekeyid
         const newPrimeKeyId = results[0].maxPrimeKeyId + 1;
 
@@ -36,6 +36,7 @@ exports.addProducts = (req, res) => {
             res.status(200).json({ message: 'Data inserted successfully' });
         });
     });
+
 };
 
 
@@ -47,6 +48,7 @@ exports.getCompanyId = async (req, res) => {
          res.json(result);
      });
  };
+
 exports.getCodeTypeData = (req, res) => {
     const { codetype, page = 1, pageSize = 10 } = req.query;
 
@@ -80,6 +82,27 @@ exports.getCodeTypeData = (req, res) => {
     });
 };
 
+exports.getCodeTypeAllData = (req, res) => {
+    const { codetype } = req.query;
+
+    let sql = `SELECT codetype, primekeyid, primename, status, sequence, remark FROM master`;
+    const values = [];
+
+    if (codetype) {
+        sql += ` WHERE codetype = ?`;
+        values.push(codetype);
+    }
+
+    con.query(sql, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching data from database:', err);
+            return res.status(500).json({ message: 'Error fetching data' });
+        }
+
+        res.status(200).json({ records: results, total: results.length });
+    });
+};
+
 
 exports.editProduct = (req, res) => {
     
@@ -87,12 +110,9 @@ exports.editProduct = (req, res) => {
     const primekeyid = req.params.primekeyid; // Extract primekeyid from request parameters
 
     // Validate input
-    if (!codetype || !updatedby || !primekeyid || !primename || !status || !sequence || !remark) {
+    if (!codetype || !updatedby || !primekeyid || !primename || !status || !sequence) {
         return res.status(400).json({ message: 'All fields are required' });
     }
-
-    // Ensure sequence is parsed as a number
-    const parsedSequence = parseInt(sequence); // or parseFloat(sequence) if sequence is a float
 
     // SQL query to update 'master' table based on primekeyid and codetype
     const sql = `
@@ -100,7 +120,7 @@ exports.editProduct = (req, res) => {
         SET codetype = ?, updatedby = ?, primename = ?, status = ?, sequence = ?, remark = ?
         WHERE primekeyid = ? AND codetype = ?`;
 
-    const values = [codetype, updatedby, primename, status, parsedSequence, remark, primekeyid, codetype];
+    const values = [codetype, updatedby, primename, status, sequence, remark, primekeyid, codetype];
 
     // Execute the query
     con.query(sql, values, (err, results) => {
@@ -143,5 +163,28 @@ exports.deleteProduct = (req, res) => {
         }
         console.log('Deleted product with primekeyid:', primekeyid);
         res.status(200).json({ message: 'Data deleted successfully' });
+    });
+};
+
+exports.getNextSequence = (req, res) => {
+    const { codetype } = req.query;
+
+    if (!codetype) {
+        return res.status(400).json({ message: 'Parameter codetype is required' });
+    }
+
+    let sql = `SELECT COALESCE(MAX(sequence), 0) + 1 AS SQ FROM master WHERE codetype = ?`;
+    const values = [codetype];
+
+    con.query(sql, values, (err, results) => {
+        if (err) {
+            console.error('Error fetching sequence from database:', err);
+            return res.status(500).json({ message: 'Error fetching sequence' });
+        }
+
+        // results[0].SQ will contain the next sequence number
+        const nextSequence = results[0].SQ;
+
+        res.status(200).json({ nextSequence });
     });
 };

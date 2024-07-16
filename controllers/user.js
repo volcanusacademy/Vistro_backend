@@ -33,22 +33,47 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
-    const { email, password } = req.body;
+//     const { email, password } = req.body;
 
-  await con.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (error, results, fields) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).send("Internal Server Error");
-        }
-        if (results.length === 0) {
-            return res.status(401).send("Invalid email or password");
-        }
-        const user = results[0];
-        res.status(200).send({
-            msg: "Login successful",
-            user
-        });
+//   await con.query('SELECT * FROM users WHERE email = ? AND password = ?', [email, password], (error, results, fields) => {
+//         if (error) {
+//             console.error(error);
+//             return res.status(500).send("Internal Server Error");
+//         }
+//         if (results.length === 0) {
+//             return res.status(401).send("Invalid email or password");
+//         }
+//         const user = results[0];
+//         res.status(200).send({
+//             msg: "Login successful",
+//             user
+//         });
+//     });
+
+
+const { email, password } = req.body;
+
+await con.query('SELECT * FROM users WHERE email = ?', [email], (error, results, fields) => {
+    if (error) {
+        console.error(error);
+        return res.status(500).send("Internal Server Error");
+    }
+    if (results.length === 0) {
+        return res.status(401).json({ msg: "User does not exist" });
+    }
+
+    const user = results[0];
+
+    if (user.password !== password) {
+        return res.status(401).json({ msg: "Invalid password" });
+    }
+
+    return res.status(200).json({
+        msg: "Welcome, user",
+        user
     });
+});
+
 };
 
 exports.editUser = async (req, res) => {
